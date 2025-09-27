@@ -1,133 +1,47 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Form Transaksi — Simple</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Form ke Google Sheet</title>
 </head>
-<body class="bg-white text-gray-800 min-h-screen flex items-center justify-center p-6">
-  <div class="w-full max-w-3xl shadow-lg rounded-2xl p-6 border border-gray-100">
-    <h1 class="text-2xl font-semibold mb-2" style="color:#0f172a">Transaksi Keuangan</h1>
-    <p class="text-sm text-gray-500 mb-6">
-      Minimal, modern — aksen biru. Isi form untuk kirim ke Google Sheet.
-    </p>
+<body>
+<h2>Form Kontak</h2>
 
-    <form id="transForm" class="grid grid-cols-1 gap-3">
-      <div class="grid grid-cols-2 gap-3">
-        <input type="date" name="tanggal" class="border p-2 rounded" />
-        <select name="tipe" class="border p-2 rounded">
-          <option value="Masuk">Masuk</option>
-          <option value="Keluar">Keluar</option>
-        </select>
-      </div>
-      <input type="text" name="keterangan" placeholder="Keterangan" class="border p-2 rounded" required />
-      <input type="text" name="kategori" placeholder="Kategori (Umum)" class="border p-2 rounded" />
-      <input type="number" name="jumlah" placeholder="Jumlah (angka tanpa pemisah)" class="border p-2 rounded" required />
-      <div class="flex gap-3">
-        <button type="submit" class="flex-1 bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Kirim</button>
-        <button type="button" id="refresh" class="px-4 bg-gray-200 rounded">Refresh</button>
-      </div>
-    </form>
-
-    <div class="mt-6">
-      <h2 class="font-medium mb-2">Transaksi Terbaru</h2>
-      <div id="msg" class="text-sm text-red-500"></div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm" id="table">
-          <thead>
-            <tr class="text-left border-b">
-              <th class="py-2">Tanggal</th>
-              <th>Keterangan</th>
-              <th>Kategori</th>
-              <th>Tipe</th>
-              <th>Jumlah</th>
-              <th>Saldo</th>
-            </tr>
-          </thead>
-          <tbody id="rows" class="divide-y"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+<form id="myForm">
+  <input type="text" name="nama" placeholder="Nama" required><br><br>
+  <input type="email" name="email" placeholder="Email" required><br><br>
+  <textarea name="pesan" placeholder="Pesan" required></textarea><br><br>
+  <button type="submit">Kirim</button>
+</form>
 
 <script>
-  // === KONFIGURASI ===
-  // Pakai hanya satu URL, pastikan ini URL Web App kamu
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPjKQj3YEu9EKcUs12tTRXz8mckV96R3yKT_oSVzyGsYY-KPZi9zrrf9Ktgmchdln5/exec';
-  const API_KEY = '10102025';
+document.getElementById('myForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
 
-  const form = document.getElementById('transForm');
-  const rowsEl = document.getElementById('rows');
-  const msg = document.getElementById('msg');
-  const refresh = document.getElementById('refresh');
+  const data = {
+    nama: e.target.nama.value,
+    email: e.target.email.value,
+    pesan: e.target.pesan.value
+  };
 
-  async function fetchLatest() {
-    msg.textContent = '';
-    try {
-      console.log('Fetching data dari:', SCRIPT_URL);
-      const res = await fetch(SCRIPT_URL + '?limit=20');
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      rowsEl.innerHTML = '';
-      if (!Array.isArray(data) || data.length === 0) {
-        rowsEl.innerHTML = '<tr><td colspan="6" class="py-2 text-sm text-gray-500">Belum ada data.</td></tr>';
-        return;
-      }
-      data.reverse().forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="py-2">${row.tanggal||''}</td>
-          <td>${row.keterangan||''}</td>
-          <td>${row.kategori||''}</td>
-          <td>${row.tipe||''}</td>
-          <td>${row.jumlah||0}</td>
-          <td>${row.saldo||0}</td>`;
-        rowsEl.appendChild(tr);
-      });
-    } catch (e) {
-      console.error('Fetch gagal:', e);
-      msg.textContent = 'Gagal fetch data: ' + (e.message || e);
+  try {
+    const response = await fetch('https://script.google.com/macros/s/AKfycby840BkBCIBz3hSP6ScCpD3Ie5qDe_188nvBmQb1OlRz5PnigruHP-Me4NiGAYE_1m9/exec', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    
+    if(result.status === 'success') {
+      alert('Data berhasil dikirim!');
+      e.target.reset();
+    } else {
+      alert('Error: ' + result.message);
     }
+  } catch(err) {
+    alert('Terjadi error: ' + err.message);
   }
-
-  form.addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    msg.textContent = '';
-    const fd = new FormData(form);
-    const payload = Object.fromEntries(fd.entries());
-    if (!payload.jumlah) { msg.textContent = 'Jumlah wajib diisi'; return; }
-    payload.jumlah = Number(payload.jumlah);
-    if (!payload.tanggal) delete payload.tanggal;
-    payload.apiKey = API_KEY;
-
-    try {
-      console.log('Kirim payload:', payload);
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const j = await res.json();
-      if (j.status === 'success') {
-        msg.style.color = 'green';
-        msg.textContent = 'Terkirim — Saldo terbaru: ' + j.saldo;
-        form.reset();
-        fetchLatest();
-      } else {
-        msg.style.color = 'red';
-        msg.textContent = 'Error: ' + (j.message || 'unknown');
-      }
-    } catch (err) {
-      console.error('POST gagal:', err);
-      msg.style.color = 'red';
-      msg.textContent = 'Network error: ' + err.message;
-    }
-  });
-
-  refresh.addEventListener('click', fetchLatest);
-  fetchLatest(); // initial load
+});
 </script>
 </body>
 </html>
