@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Laporan - Keuangan Cripmixs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .print-container {
+            max-width: 800px;
+            margin: auto;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #0056b3;
+        }
+        .header p {
+            margin: 5px 0 0;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f7f7f7;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .summary {
+            padding: 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .summary table {
+            width: auto;
+            margin: 0;
+            border: none;
+        }
+        .summary td {
+            border: none;
+            padding: 5px 10px;
+        }
+        .summary .total {
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8em;
+            color: #888;
+        }
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .controls button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+        .controls button.back {
+            background-color: #6c757d;
+        }
+        @media print {
+            .controls {
+                display: none;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-container">
+        <div class="controls">
+            <button onclick="window.print()">🖨️ Cetak Laporan</button>
+            <button class="back" onclick="window.close()">Kembali</button>
+        </div>
+
+        <div class="header">
+            <h1>Laporan Keuangan</h1>
+            <p>Perusahaan Cripmixs</p>
+            <p id="report-date"></p>
+        </div>
+        
+        <table id="print-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Kategori</th>
+                    <th>Deskripsi</th>
+                    <th>Jenis</th>
+                    <th>Jumlah</th>
+                </tr>
+            </thead>
+            <tbody id="print-table-body">
+                </tbody>
+        </table>
+
+        <div id="summary-section" class="summary">
+            <h3>Ringkasan</h3>
+            <table>
+                <tr>
+                    <td>Total Pemasukan:</td>
+                    <td id="total-pemasukan" class="total" style="color: #28a745;">Rp 0</td>
+                </tr>
+                <tr>
+                    <td>Total Pengeluaran:</td>
+                    <td id="total-pengeluaran" class="total" style="color: #dc3545;">Rp 0</td>
+                </tr>
+                <tr>
+                    <td><strong>Saldo Akhir:</strong></td>
+                    <td id="saldo-akhir" class="total" style="color: #0056b3;"><strong>Rp 0</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            Laporan ini dibuat secara otomatis oleh sistem Keuangan Cripmixs (KC).
+        </div>
+    </div>
+
+    <script src="print.js"></script>
+</body>
+</html>
